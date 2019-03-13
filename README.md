@@ -1,4 +1,5 @@
-# -
+# nginx安装
+
 滴滴滴,学僧卡
 由于需要用到C语言所以需要安装c语言的环境，以及相关的三方库。
 
@@ -37,3 +38,7 @@ make
 然后:
 make install
 这时,local中多了一个nginx文件夹,里面包含三个目录,至此完毕
+Welcome to nginx!
+开启  ./nginx
+关闭  ./nginx -s stop
+刷新  ./nginx -s reload
