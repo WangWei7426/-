@@ -1,0 +1,86 @@
+首先需要准备centos 7映射文件
+  接下来就是一顿操作了
+     1)从类似maven的reporstory取坐标,docker也有一个仓库,不过是在国外,速度slow,所以一般在ustc镜像网站
+     https://lug.ustc.edu.cn/wiki/mirrors/help/docker配置,
+     编辑该文件：vi /etc/docker/daemon.json
+PS: 如果该文件不存在就手动创建；另外有可能如果没有vim 命令则使用vi命令即可
+     在该文件中编辑      {
+     "registry-mirrors": ["https://docker.mirrors.ustc.edu.cn"]
+         }即可
+     注意一定要重启docker服务，如果重启docker后无法加速，可以重新启动OS ,然后通过docker pull命令下载镜像    命令:service docker restart
+   2)删除镜像:可以根据镜像的名字或者imageid来删除.     docker rmi 镜像名或者imageid
+     删除容器:和镜像类似.   docker rm 镜像名或者imageid  (如果删除守护式容器,慎删)加-f
+     毁灭者:docker rmi `docker images -q`：删除所有镜像,不要想不开做这种事
+   3)  查看容器:docker ps    ,查看所有docker ps -a 查看停止的容器:docker ps -f status=exited
+   4)   创建容器命令:  docker run
+            -i :表示运行容器
+            -t :表示容器启动后会进入其命令行.加入这两个参数后,容器创建就能直接登录进去.即分配一个伪终端
+            -name: 为创建的容器命名
+            -v: 表示目录映射关系(前者是宿主机目录,后者是映射到宿主机上的目录)可以使用多个 -v做多个目录或文件映射.注意:最好做目录映射,在宿主机上做修改,然后共享到容器上
+            -d:在run后面加上-d参数,则会创建UI个守护式容器在后台运行(这样创建容器后不会自动登录容器,如果只加-i -t两个参数,创建后就会自动进去容器)
+            -p: 表示端口映射,劝着是宿主机端口,后者是容器内的映射端口.可以使用多个 -p做多个端口映射
+       4.1 创建交互式容器             自己命名的
+              docker run -it   --name=mycentos  centos:7 /bin/bash
+           创建守护式容器
+              docker run -di   --name=mycentos2  centos:7 
+           如果没有/bin/bash,就要登录守护式容器:   docker exec -it 容器名字  /bin/bash  
+           停止和启动容器
+              docker stop 容器名字
+              docker start 容器名字
+       4.2  文件拷贝   
+            将文件拷贝到容器内,ps 首先你得有那个复制的文件,才会有被复制的可能
+           docker cp  需要拷贝的文件或目录  容器名称:容器目录
+            将文件从容器内拷贝出来
+           docker cp  容器名称:容器目录  需要拷贝的文件或目录 
+       4.3   目录挂载(映射)
+          我们可以在创建容器的时候,将宿主机目录与容器没的目录进行映射,这样我们就可以通过修改宿主机某个目录的文件从而去影响容器里所对应的目录
+                创建容器 添加 -v参数 后边为  宿主机目录:容器目录 
+                例: docker run -di -v /usr/local/a:/usr/local/a --name=mycentos3 centos:7(这是新创建的)
+                如果因为centos7中的安全模块selinux把权限禁掉了,需要添加参数-privileged=true来解决挂载的目录没有权限的问题
+                    docker run -di --privileged=true -v /root/test:/usr/local/test --name=mycentos4 centos:7
+        4.4查看容器ip地址
+              如: docker inspect mycentos2
+        5 应用部署(mysql,tomcat...) 
+            拉取mysql镜像
+            docker pull mysql
+            创建mysql容器
+            docker run -di --name=demo_mysql -p 33306:3306 -e MYSQL_ROOT_PASSWORD=123456 mysql:5.7
+            -p 代表端口映射,格式为宿主机映射端口:容器运行端口
+            -e 代表添加环境变量 MYSQL_ROOT_PASSWORD 是root用户的登录密码
+           5.1 进入mysql容器
+              docker exec -it demo-mysql /bin/bash
+              登录mysql
+                mysql -u root -p
+              授权允许远程登录
+              GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '123456' WITH GRANT OPTION;
+        6 备份与迁移
+           容器保存为镜像
+              docker commit nginx_demo mynginx
+              nginx_demo 是容器名称
+              munginx是新的镜像名称
+              此镜像的内容就是你当前容器的内容.接下来就可以用这个镜像再次运行新的容器
+           镜像备份
+               docker save -o mynginx.tar mynginx
+               -o 输出都得文件
+               用ls命令就可以看到打的tar包了
+            镜像恢复与迁移
+                docker load -i mynginx.tar
+                -i 输入的文件
+                
+                TODO
+                
+                
+                
+                未完待续
+                
+         
+              
+              
+            
+             
+               
+               
+                
+                
+        
+  
