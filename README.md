@@ -42,3 +42,19 @@ Welcome to nginx!
 开启  ./nginx
 关闭  ./nginx -s stop
 刷新  ./nginx -s reload
+  
+  
+  git操作
+     ssh的提交github上
+        点击菜单栏的vcs  importinto那个  里面有个create reporter选项,吧那个项目提交到github上 ,ok之后,变橘色
+        然后点击项目的右键,点击git 有个提交commit,变绿
+        最后点击项目的右键,点击git ,有个reporstory,在push,输入github上的ssh的地址,就ok了
+        
+        
+        
+        
+        
+        
+  
+  
+  
